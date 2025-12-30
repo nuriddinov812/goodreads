@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib.auth import get_user
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
 
-from users.form import UserCreateForm
+from users.form import UserCreateForm, ProfileEditForm
 
 # Create your views here.
 
@@ -42,7 +43,8 @@ class LoginView(View):
         if login_form.is_valid():
             user = login_form.get_user()
             login(request, user)
-            return redirect("landing_page")
+            messages.success(request, "You have been logged in successfully.") 
+            return redirect("book_list")
         
         else:
             context = {"form": login_form}
@@ -57,3 +59,34 @@ class ProfileView(LoginRequiredMixin, View):
         }
         return render(request, "users/profile.html", context)        
 
+ 
+
+class LogoutView(LoginRequiredMixin, View):
+    def get(self, request):
+        logout(request)
+        messages.info(request, "You have been logged out successfully.") 
+        return redirect("landing_page")
+    
+    
+class ProfileEditView(LoginRequiredMixin, View):
+    
+    def get(self, request):
+        user_update_form = ProfileEditForm(instance=request.user)
+        context = {"form": user_update_form}
+        return render(request, "users/profile_edit.html", context)
+    
+    def post(self, request):
+        
+        user_update_form = ProfileEditForm(
+            request.POST,
+            instance=request.user,
+        )
+        
+        if user_update_form.is_valid():
+            user_update_form.save()
+            messages.success(request, "Your profile has been updated successfully.") 
+            return redirect("profile")
+        
+        else:
+            context = {"form": user_update_form}
+            return render(request, "users/profile_edit.html", context)

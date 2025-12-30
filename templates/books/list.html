@@ -1,12 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=], initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Books</h1>
+{% extends "base.html" %}
+{% block title %}Book List{% endblock title %}
+{% block content %}
+    <h1>Book List Page</h1>
     {% if books %}
         <ul>
             {% for book in books %}
@@ -16,5 +11,4 @@
     {% else %}
         <p>No books are available.</p>
     {% endif %}   
-</body>
-</html>
+{% endblock content %}

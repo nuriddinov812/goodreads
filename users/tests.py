@@ -1,3 +1,4 @@
+import email
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -87,14 +88,16 @@ class RegistrationTestCase(TestCase):
 
 
 class LoginTestCase(TestCase):
-    
-    def test_successful_login(self):
-        db_user = User.objects.create(
+    def setUp(self):
+        # DRY principle-Don't Repeat Yourself
+        self.db_user = User.objects.create(
             username="testuser",
             first_name="Test",
         )
-        db_user.set_password("securepassword123")
-        db_user.save()
+        self.db_user.set_password("securepassword123")
+        self.db_user.save()
+        
+    def test_successful_login(self):
         
         self.client.post(
             reverse("login"),
@@ -106,14 +109,7 @@ class LoginTestCase(TestCase):
         user = get_user(self.client)
         self.assertTrue(user.is_authenticated)
            
-    def test_wrong_credentials(self):
-        db_user = User.objects.create(
-            username="testuser",
-            first_name="Test",
-        )
-        db_user.set_password("securepassword123")
-        db_user.save()
-        
+    def test_wrong_credentials(self):        
         response = self.client.post(
             reverse("login"),
             data={
@@ -131,6 +127,16 @@ class LoginTestCase(TestCase):
                 "password": "securepassword123",
             },)
         
+        user = get_user(self.client)
+        self.assertFalse(user.is_authenticated)
+            
+    def test_logout(self):
+        self.client.login(
+            username="testuser",
+            password="securepassword123",
+        )
+        
+        self.client.get(reverse("logout"))
         user = get_user(self.client)
         self.assertFalse(user.is_authenticated)
      
@@ -169,4 +175,34 @@ class ProfileTestCase(TestCase):
         self.assertContains(response, user.last_name)
         self.assertContains(response, user.email)
         
+    def test_profile_edit(self):
+        user = User.objects.create(
+            username="testuser",
+            first_name="Test",
+            last_name="User",
+            email="testuser@example.com",
+        )
+        user.set_password("securepassword123")
+        user.save()
         
+        self.client.login(
+            username="testuser",
+            password="securepassword123",
+        )
+        
+        response = self.client.post(
+            reverse("profile_edit"),
+            data={
+                "username": "updateduser",
+                "first_name": "Updated",
+                "last_name": "User",
+                "email": "testuser@example.com"},
+        )
+        
+        # user = User.objects.get(pk=user.pk)
+        user.refresh_from_db()
+        
+        self.assertEqual(user.username, "updateduser")
+        self.assertEqual(user.first_name, "Updated")
+        self.assertEqual(user.last_name, "User")
+        self.assertEqual(response.url, reverse("profile"))
