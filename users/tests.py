@@ -1,6 +1,6 @@
 import email
 from django.test import TestCase
-from django.contrib.auth.models import User
+from users.models import CustomUser
 from django.urls import reverse
 from  django.contrib.auth import get_user
 
@@ -21,7 +21,7 @@ class RegistrationTestCase(TestCase):
             },
         )
 
-        user = User.objects.get(username="testuser")
+        user = CustomUser.objects.get(username="testuser")
         self.assertEqual(user.first_name, "Test")
         self.assertEqual(user.last_name, "User")
         self.assertEqual(user.email, "testuser@example.com")
@@ -36,7 +36,7 @@ class RegistrationTestCase(TestCase):
             },
         )
 
-        user_count = User.objects.count()
+        user_count = CustomUser.objects.count()
         self.assertEqual(user_count, 0)
         form = response.context["form"]
         self.assertFormError(form, "first_name", ["This field is required."])
@@ -54,13 +54,13 @@ class RegistrationTestCase(TestCase):
             },
         )
 
-        user_count = User.objects.count()
+        user_count = CustomUser.objects.count()
         self.assertEqual(user_count, 0)
         form = response.context["form"]
         self.assertFormError(form, "email", ["Enter a valid email address."])
 
     def test_unique_username(self):
-        user = User.objects.create(
+        user = CustomUser.objects.create(
             username="testuser",
             first_name="Test",
         )
@@ -77,7 +77,7 @@ class RegistrationTestCase(TestCase):
                 "password": "securepassword123",
             },
         )
-        user_count = User.objects.count()
+        user_count = CustomUser.objects.count()
         self.assertEqual(user_count, 1)
 
         self.assertFormError(
@@ -90,7 +90,7 @@ class RegistrationTestCase(TestCase):
 class LoginTestCase(TestCase):
     def setUp(self):
         # DRY principle-Don't Repeat Yourself
-        self.db_user = User.objects.create(
+        self.db_user = CustomUser.objects.create(
             username="testuser",
             first_name="Test",
         )
@@ -151,7 +151,7 @@ class ProfileTestCase(TestCase):
         self.assertEqual(response.url, reverse("login")+"?next=/users/profile/")  
         
     def test_profile_detail(self):
-        user = User.objects.create(
+        user = CustomUser.objects.create(
             username="testuser",
             first_name="Test",
             last_name="User",
@@ -176,7 +176,7 @@ class ProfileTestCase(TestCase):
         self.assertContains(response, user.email)
         
     def test_profile_edit(self):
-        user = User.objects.create(
+        user = CustomUser.objects.create(
             username="testuser",
             first_name="Test",
             last_name="User",
@@ -199,7 +199,7 @@ class ProfileTestCase(TestCase):
                 "email": "testuser@example.com"},
         )
         
-        # user = User.objects.get(pk=user.pk)
+        # user = CustomUser.objects.get(pk=user.pk)
         user.refresh_from_db()
         
         self.assertEqual(user.username, "updateduser")

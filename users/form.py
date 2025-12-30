@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
+from users.models import CustomUser
 
 # class UserCreateForm(forms.Form):
 #     username = forms.CharField(max_length=150, required=True)
@@ -35,7 +35,7 @@ class UserCreateForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, required=True)
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = ["username", "first_name", "last_name", "email", "password"]
 
     def save(self, commit=True):
@@ -54,5 +54,5 @@ class UserLoginForm(forms.Form):
 class ProfileEditForm(forms.ModelForm):
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = ["username","first_name", "last_name", "email"]
