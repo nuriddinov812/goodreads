@@ -49,10 +49,10 @@ class UserCreateForm(forms.ModelForm):
 class UserLoginForm(forms.Form):
     username = forms.CharField(max_length=150, required=True)
     password = forms.CharField(widget=forms.PasswordInput, required=True)
-    
-    
+
+
 class ProfileEditForm(forms.ModelForm):
 
     class Meta:
         model = CustomUser
-        fields = ["username","first_name", "last_name", "email"]
+        fields = ["username", "first_name", "last_name", "email", "profile_picture"]

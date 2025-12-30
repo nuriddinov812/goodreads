@@ -2,7 +2,7 @@ import email
 from django.test import TestCase
 from users.models import CustomUser
 from django.urls import reverse
-from  django.contrib.auth import get_user
+from django.contrib.auth import get_user
 
 # Create your tests here.
 
@@ -96,60 +96,63 @@ class LoginTestCase(TestCase):
         )
         self.db_user.set_password("securepassword123")
         self.db_user.save()
-        
+
     def test_successful_login(self):
-        
+
         self.client.post(
             reverse("login"),
             data={
                 "username": "testuser",
                 "password": "securepassword123",
-            },)
-        
+            },
+        )
+
         user = get_user(self.client)
         self.assertTrue(user.is_authenticated)
-           
-    def test_wrong_credentials(self):        
+
+    def test_wrong_credentials(self):
         response = self.client.post(
             reverse("login"),
             data={
                 "username": "testuser",
                 "password": "wrongpassword",
-            },)
-        
+            },
+        )
+
         user = get_user(self.client)
-        self.assertFalse(user.is_authenticated) 
-        
+        self.assertFalse(user.is_authenticated)
+
         response = self.client.post(
             reverse("login"),
             data={
                 "username": "wronguser",
                 "password": "securepassword123",
-            },)
-        
+            },
+        )
+
         user = get_user(self.client)
         self.assertFalse(user.is_authenticated)
-            
+
     def test_logout(self):
         self.client.login(
             username="testuser",
             password="securepassword123",
         )
-        
+
         self.client.get(reverse("logout"))
         user = get_user(self.client)
         self.assertFalse(user.is_authenticated)
-     
-        
+
+
 class ProfileTestCase(TestCase):
-    
+
     def test_login_required_to_access_profile(self):
         response = self.client.get(
             reverse("profile"),
-        )  
+        )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("login")+"?next=/users/profile/")  
-        
+        self.assertEqual(response.url, reverse("login") + "?next=/users/profile/")
+
     def test_profile_detail(self):
         user = CustomUser.objects.create(
             username="testuser",
@@ -158,9 +161,8 @@ class ProfileTestCase(TestCase):
             email="testuser@example.com",
         )
         user.set_password("securepassword123")
-        user.save()   
-        
-        
+        user.save()
+
         self.client.login(
             username="testuser",
             password="securepassword123",
@@ -168,13 +170,13 @@ class ProfileTestCase(TestCase):
         response = self.client.get(
             reverse("profile"),
         )
-        
+
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, user.username)
         self.assertContains(response, user.first_name)
         self.assertContains(response, user.last_name)
         self.assertContains(response, user.email)
-        
+
     def test_profile_edit(self):
         user = CustomUser.objects.create(
             username="testuser",
@@ -184,24 +186,25 @@ class ProfileTestCase(TestCase):
         )
         user.set_password("securepassword123")
         user.save()
-        
+
         self.client.login(
             username="testuser",
             password="securepassword123",
         )
-        
+
         response = self.client.post(
             reverse("profile_edit"),
             data={
                 "username": "updateduser",
                 "first_name": "Updated",
                 "last_name": "User",
-                "email": "testuser@example.com"},
+                "email": "testuser@example.com",
+            },
         )
-        
+
         # user = CustomUser.objects.get(pk=user.pk)
         user.refresh_from_db()
-        
+
         self.assertEqual(user.username, "updateduser")
         self.assertEqual(user.first_name, "Updated")
         self.assertEqual(user.last_name, "User")

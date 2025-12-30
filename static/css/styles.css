@@ -1,0 +1,242 @@
+/* ===== UMUMIY STILLAR ===== */
+.card-container {
+    max-width: 600px;
+    margin: 40px auto;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.card-box {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+}
+
+.card-header-custom {
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.card-header-custom::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 2px;
+}
+
+.card-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.card-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.card-subtitle {
+    color: #666;
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+/* ===== FORM STILLARI ===== */
+.form-group-custom {
+    margin-bottom: 24px;
+}
+
+.form-group-custom label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group-custom input,
+.form-group-custom textarea,
+.form-group-custom select {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    background: #f8f9fa;
+}
+
+.form-group-custom input:focus,
+.form-group-custom textarea:focus,
+.form-group-custom select:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.form-group-custom input::placeholder {
+    color: #adb5bd;
+}
+
+/* ===== TUGMALAR ===== */
+.btn-primary-custom {
+    width: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px 32px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary-custom:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-secondary-custom {
+    background: #f8f9fa;
+    color: #666;
+    padding: 16px 32px;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.btn-secondary-custom:hover {
+    background: #e9ecef;
+    border-color: #dee2e6;
+    text-decoration: none;
+    color: #333;
+}
+
+.btn-container {
+    display: flex;
+    gap: 16px;
+    margin-top: 30px;
+}
+
+.btn-container > * {
+    flex: 1;
+}
+
+/* ===== XATOLIKLAR ===== */
+.error-list {
+    background: #fff5f5;
+    border: 1px solid #feb2b2;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    color: #c53030;
+    font-size: 14px;
+}
+
+.error-list ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.helptext {
+    font-size: 12px;
+    color: #888;
+    margin-top: 6px;
+}
+
+/* ===== PROFIL STILLARI ===== */
+.profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #667eea;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    margin-bottom: 20px;
+}
+
+.profile-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    margin: 10px 0 5px 0;
+}
+
+.profile-username {
+    font-size: 16px;
+    color: #667eea;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+.profile-info {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #666;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-weight: 500;
+    color: #333;
+    font-size: 16px;
+}
+
+/* ===== LINK STILLARI ===== */
+.form-link {
+    text-align: center;
+    margin-top: 20px;
+    color: #666;
+}
+
+.form-link a {
+    color: #667eea;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.form-link a:hover {
+    text-decoration: underline;
+}

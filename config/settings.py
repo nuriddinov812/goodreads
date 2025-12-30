@@ -120,10 +120,12 @@ USE_I18N = True
 
 USE_TZ = True
 
-AUTH_USER_MODEL = "users.CustomUser"    
+AUTH_USER_MODEL = "users.CustomUser"
 
-
+MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "/media/"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]

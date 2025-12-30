@@ -1,11 +1,36 @@
 {% extends "base.html" %}
 {% block title %}Profile{% endblock title %}
 {% block content %}
-    <h1>Profile Page</h1>
-    <a href="{% url 'profile_edit' %}">Edit Profile</a>
-
-    <p>Welcome, {{ user.username }}!</p>
-    <p>First Name: {{ user.first_name }}</p>
-    <p>Last Name: {{ user.last_name }}</p>
-    <p>Email: {{ user.email }}</p>
+<div class="card-container">
+    <div class="card-box" style="text-align: center;">
+        <div class="card-header-custom">
+            
+            <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="profile-picture"/>
+            
+            <h1 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h1>
+            <p class="profile-username">@{{ user.username }}</p>
+        </div>
+        
+        <div class="profile-info">
+            <div class="info-item">
+                <span class="info-label">📧 Email</span>
+                <span class="info-value">{{ user.email }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">👤 Username</span>
+                <span class="info-value">{{ user.username }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">📝 First Name</span>
+                <span class="info-value">{{ user.first_name }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">📝 Last Name</span>
+                <span class="info-value">{{ user.last_name }}</span>
+            </div>
+        </div>
+        
+        <a href="{% url 'profile_edit' %}" class="btn-primary-custom" style="display: inline-block; margin-top: 20px;">✏️ Edit Profile</a>
+    </div>
+</div>
 {% endblock content %}

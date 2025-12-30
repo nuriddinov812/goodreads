@@ -33,60 +33,57 @@ class RegisterView(View):
 
 class LoginView(View):
     def get(self, request):
-        login_form= AuthenticationForm()
+        login_form = AuthenticationForm()
         context = {"form": login_form}
         return render(request, "users/login.html", context)
-    
+
     def post(self, request):
-        login_form= AuthenticationForm(data=request.POST)
-        
+        login_form = AuthenticationForm(data=request.POST)
+
         if login_form.is_valid():
             user = login_form.get_user()
             login(request, user)
-            messages.success(request, "You have been logged in successfully.") 
+            messages.success(request, "You have been logged in successfully.")
             return redirect("book_list")
-        
+
         else:
             context = {"form": login_form}
-            return render(request, "users/login.html", context)        
-        
-        
-        
+            return render(request, "users/login.html", context)
+
+
 class ProfileView(LoginRequiredMixin, View):
     def get(self, request):
-        context = {
-            "user": get_user(request)
-        }
-        return render(request, "users/profile.html", context)        
+        context = {"user": get_user(request)}
+        return render(request, "users/profile.html", context)
 
- 
 
 class LogoutView(LoginRequiredMixin, View):
     def get(self, request):
         logout(request)
-        messages.info(request, "You have been logged out successfully.") 
+        messages.info(request, "You have been logged out successfully.")
         return redirect("landing_page")
-    
-    
+
+
 class ProfileEditView(LoginRequiredMixin, View):
-    
+
     def get(self, request):
         user_update_form = ProfileEditForm(instance=request.user)
         context = {"form": user_update_form}
         return render(request, "users/profile_edit.html", context)
-    
+
     def post(self, request):
-        
+
         user_update_form = ProfileEditForm(
             request.POST,
+            request.FILES,
             instance=request.user,
         )
-        
+
         if user_update_form.is_valid():
             user_update_form.save()
-            messages.success(request, "Your profile has been updated successfully.") 
+            messages.success(request, "Your profile has been updated successfully.")
             return redirect("profile")
-        
+
         else:
             context = {"form": user_update_form}
             return render(request, "users/profile_edit.html", context)
