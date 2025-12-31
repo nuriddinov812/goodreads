@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
@@ -7,6 +7,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 
 from users.form import UserCreateForm, ProfileEditForm
+from users.models import CustomUser
+from books.models import BookReview
 
 # Create your views here.
 
@@ -87,3 +89,18 @@ class ProfileEditView(LoginRequiredMixin, View):
         else:
             context = {"form": user_update_form}
             return render(request, "users/profile_edit.html", context)
+
+
+class UserPublicProfileView(View):
+    def get(self, request, username):
+        user = get_object_or_404(CustomUser, username=username)
+        recent_reviews = (
+            BookReview.objects.select_related("book")
+            .filter(user=user)
+            .order_by("-created_at")[:10]
+        )
+        context = {
+            "profile_user": user,
+            "recent_reviews": recent_reviews,
+        }
+        return render(request, "users/public_profile.html", context)

@@ -6,6 +6,9 @@
 <div class="page-header">
     <h1 class="page-title">📚 Book Library</h1>
     <p class="page-subtitle">Discover your next favorite book</p>
+    {% if user.is_superuser %}
+        <a href="{% url 'add_book' %}" class="btn btn-primary">Add Book</a>
+    {% endif %}
 </div>
 
 <!-- Search Books -->
@@ -33,6 +36,12 @@
             <div class="book-meta">
                 <span class="book-isbn">ISBN: {{ book.isbn }}</span>
                 <a href="{% url 'book_detail' book.pk %}" class="book-link">View Details</a>
+                {% if user.is_superuser %}
+                    <form method="post" action="{% url 'delete_book' book.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this book?')">Delete</button>
+                    </form>
+                {% endif %}
             </div>
         </div>
     </div>

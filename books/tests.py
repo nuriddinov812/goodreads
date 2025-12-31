@@ -98,4 +98,46 @@ class BookReviewTests(TestCase):
 
         self.assertEqual(response.status_code, 302)  # Should redirect after saving
         self.assertTrue(book.bookreview_set.filter(comment="Great book!", user=user).exists())
+
+
+
+class LandingPageTests(TestCase):
+    def test_landing_page_statistics(self):
+        response = self.client.get(reverse("landing_page"))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("total_books", response.context)
+        self.assertIn("total_reviews", response.context)
+        self.assertIn("total_users", response.context)
+        self.assertIn("top_rated_books", response.context)
+        self.assertIn("most_reviewed_books", response.context)
+        self.assertIn("new_releases", response.context)
+        self.assertIn("recent_reviews", response.context)
+        self.assertIn("top_reviewers", response.context)
+        self.assertIn("five_star_books", response.context)   
         
+    def test_featured_book_in_context(self):
+        response = self.client.get(reverse("landing_page"))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("featured_book", response.context)
+        self.assertIsNone(response.context["featured_book"])  # No books yet
+
+    def test_featured_book_selection(self):
+        # Create books with high ratings to be candidates for featured book
+        for i in range(15):
+            book = Book.objects.create(
+                title=f"Top Book {i+1}",
+                description="Highly rated book",
+                isbn=f"99999999999{i+1:02d}",
+            )
+            for j in range(5):
+                book.bookreview_set.create(
+                    user=CustomUser.objects.create_user(
+                        username=f"user{i}{j}", email=f"user{i}{j}@example.com", password="testpass123"
+                    ),
+                    comment="Great book!",
+                    stars_given=5,
+                )   
+        response = self.client.get(reverse("landing_page"))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("featured_book", response.context)
+        self.assertIsNotNone(response.context["featured_book"])  # Featured book should be selected now             

@@ -5,7 +5,9 @@ from django.views.generic import ListView, DetailView
 from django.contrib import messages
 from django.core.paginator import Paginator
 from books.models import Book, BookReview
-from books.forms import BookReviewForm
+from books.forms import BookReviewForm, BookForm
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 
@@ -84,6 +86,65 @@ class AddBookReviewView(View):
 #     template_name = "books/detail.html"
 #     pk_url_kwarg = "pk"
 #     model = Book
-
     
+
+class AddBookView(UserPassesTestMixin, View):
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def get(self, request):
+        form = BookForm()
+        return render(request, 'books/add_book.html', {'form': form})
+
+    def post(self, request):
+        form = BookForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Book added successfully.')
+            return redirect('book_list')
+        return render(request, 'books/add_book.html', {'form': form})
+
+
+class DeleteBookView(UserPassesTestMixin, View):
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def post(self, request, pk):
+        book = get_object_or_404(Book, pk=pk)
+        book.delete()
+        messages.success(request, 'Book deleted successfully.')
+        return redirect('book_list')
+
+
+class EditBookReviewView(View):
+    def get(self, request, pk):
+        review = get_object_or_404(BookReview, pk=pk)
+        if request.user != review.user and not request.user.is_superuser:
+            messages.error(request, 'You can only edit your own reviews.')
+            return redirect('book_detail', pk=review.book.pk)
+        form = BookReviewForm(instance=review)
+        return render(request, 'books/edit_review.html', {'form': form, 'review': review})
+
+    def post(self, request, pk):
+        review = get_object_or_404(BookReview, pk=pk)
+        if request.user != review.user and not request.user.is_superuser:
+            messages.error(request, 'You can only edit your own reviews.')
+            return redirect('book_detail', pk=review.book.pk)
+        form = BookReviewForm(request.POST, instance=review)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Review updated successfully.')
+            return redirect('book_detail', pk=review.book.pk)
+        return render(request, 'books/edit_review.html', {'form': form, 'review': review})
+
+
+class DeleteBookReviewView(View):
+    def post(self, request, pk):
+        review = get_object_or_404(BookReview, pk=pk)
+        if request.user != review.user and not request.user.is_superuser:
+            messages.error(request, 'You can only delete your own reviews.')
+            return redirect('book_detail', pk=review.book.pk)
+        review.delete()
+        messages.success(request, 'Review deleted successfully.')
+        return redirect('book_detail', pk=review.book.pk)    
     

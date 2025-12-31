@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Edit Review{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Edit Your Review</h1>
+    
+    <form method="post" class="review-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Update Review</button>
+    </form>
+    
+    <a href="{% url 'book_detail' review.book.pk %}">Back to Book</a>
+</div>
+{% endblock %}
