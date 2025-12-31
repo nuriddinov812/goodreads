@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from .models import Book
+from users.models import CustomUser
 
 # Create your tests here.
 
@@ -36,3 +37,65 @@ class BookTests(TestCase):
 
         self.assertContains(response, book.title)
         self.assertContains(response, book.description)
+
+    def test_pagination_is_ten(self):
+        for i in range(15):
+            Book.objects.create(
+                title=f"Book {i+1}",
+                description=f"Description {i+1}",
+                isbn=f"12345678901{i+1:02d}",
+            )
+
+        response = self.client.get("/books/")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("is_paginated" in response.context)
+        self.assertTrue(response.context["is_paginated"] is True)
+        self.assertEqual(len(response.context["books"]), 10)
+        
+        
+        
+    def test_search_books(self):
+        Book.objects.create(
+            title="Django for Beginners",
+            description="A comprehensive guide to Django.",
+            isbn="1111111111111",
+        )
+        Book.objects.create(
+            title="Learning Python",
+            description="An in-depth look at Python programming.",
+            isbn="2222222222222",
+        )
+        Book.objects.create(
+            title="Advanced Django",
+            description="Take your Django skills to the next level.",
+            isbn="3333333333333",
+        )
+
+        response = self.client.get("/books/?q=Django")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Django for Beginners")
+        self.assertContains(response, "Advanced Django")
+        self.assertNotContains(response, "Learning Python")
+        
+        
+class BookReviewTests(TestCase):
+    def test_add_book_review(self):
+        user = CustomUser.objects.create_user(
+            username="testuser", email="test@example.com", password="testpass123"
+        )
+        self.client.login(username="testuser", password="testpass123")
+        
+        book = Book.objects.create(
+            title="Test Book", description="Test Description", isbn="1234567890127"
+        )
+        response = self.client.post(
+            reverse("add_book_review", kwargs={"pk": book.pk}),
+            data={
+                "comment": "Great book!",
+                "stars_given": 5,
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)  # Should redirect after saving
+        self.assertTrue(book.bookreview_set.filter(comment="Great book!", user=user).exists())
+        

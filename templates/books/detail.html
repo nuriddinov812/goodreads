@@ -1,9 +1,131 @@
 {% extends "base.html" %}
-{% block title %}Book Detail{% endblock title %}
+{% load static %}
+{% block title %}{{ book.title }}{% endblock title %}
+
 {% block content %}
-    <h1>Book Detail Page</h1>
-    <h3>{{ book.title }}</h3>
-    <p>
-        {{ book.description }}
-    </p>
+<div class="book-detail-container">
+    <div class="book-detail-card">
+        <div class="book-detail-header">
+            
+            {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="book-detail-cover">
+            {% else %}
+                <img src="{% static 'images/default_book.png' %}" alt="{{ book.title }}" class="book-detail-cover">
+            {% endif %}
+            <div class="book-detail-info">
+                <h1 class="book-detail-title">{{ book.title }}</h1>
+                <p class="book-detail-isbn">📎 ISBN: {{ book.isbn }}</p>
+                <a href="{% url 'book_list' %}" class="btn-secondary-custom" style="width: fit-content; padding: 12px 24px;">← Back to Library</a>
+            </div>
+        </div>
+        
+        <div class="book-detail-body">
+            <div class="book-detail-section">
+                <h3>📖 Description</h3>
+                <p>{{ book.description }}</p>
+            </div>
+            
+            <!-- Add Review Form -->
+            {% if user.is_authenticated %}
+            <div class="book-detail-section">
+                <h3>📝 Add Your Review</h3>
+                <div class="review-form-container">
+                    <form method="post" action="{% url 'add_book_review' book.pk %}" class="review-form">
+                        {% csrf_token %}
+                        
+                        <div class="form-group-custom">
+                            <label>Your Rating</label>
+                            <div class="star-rating">
+                                <input type="radio" name="stars_given" value="5" id="star5"><label for="star5">★</label><input type="radio" name="stars_given" value="4" id="star4"><label for="star4">★</label><input type="radio" name="stars_given" value="3" id="star3"><label for="star3">★</label><input type="radio" name="stars_given" value="2" id="star2"><label for="star2">★</label><input type="radio" name="stars_given" value="1" id="star1"><label for="star1">★</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group-custom">
+                            <label for="comment">Your Review</label>
+                            <textarea name="comment" id="comment" rows="3" placeholder="Share your thoughts about this book..." class="review-textarea"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary-custom" style="width: auto; padding: 12px 30px;">
+                            ✍️ Submit Review
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="book-detail-section">
+                <p class="login-prompt">Please <a href="{% url 'login' %}">login</a> to add a review.</p>
+            </div>
+            {% endif %}
+
+            <!-- Reviews Section -->
+            <div class="book-detail-section">
+                <h3>💬 Reviews ({{ book.bookreview_set.count }})</h3>
+                
+                {% if reviews %}
+                    <div class="reviews-list">
+
+                        {% for review in reviews %}
+                        <div class="review-card">
+                            <div class="review-header">
+
+                                <div class="review-user">
+                                    {% if review.user.profile_picture %}
+                                        <img src="{{ review.user.profile_picture.url }}" alt="{{ review.user.username }}" class="review-avatar">
+                                    {% else %}
+                                        <div class="review-avatar-placeholder">{{ review.user.username|slice:":1"|upper }}</div>
+                                    {% endif %}
+
+                                    <div class="review-user-info">
+                                        <span class="review-author">{{ review.user.username }}</span>
+                                        {% if review.created_at %}
+                                            <span class="review-date">{{ review.created_at|date:"M d, Y" }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <span class="review-stars">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= review.stars_given %}⭐{% else %}☆{% endif %}
+                                    {% endfor %}
+                                </span>
+
+                            </div>
+                            <p class="review-comment">{{ review.comment }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Reviews Pagination -->
+                    {% if reviews.has_other_pages %}
+                    <nav class="pagination-container">
+                        <ul class="pagination">
+                            {% if reviews.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ reviews.previous_page_number }}">← Previous</a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in reviews.paginator.page_range %}
+                                {% if reviews.number == num %}
+                                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                {% elif num > reviews.number|add:'-3' and num < reviews.number|add:'3' %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if reviews.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ reviews.next_page_number }}">Next →</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                {% else %}
+                    <p class="no-reviews">No reviews yet. Be the first to review this book!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content %}

@@ -1,14 +1,70 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Book List{% endblock title %}
+
 {% block content %}
-    <h1>Book List Page</h1>
-    {% if books %}
-        <ul>
-            {% for book in books %}
-                <li><a href="{% url 'book_detail' book.pk %}">{{ book.title }}</a></li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No books are available.</p>
-    {% endif %}   
+<div class="page-header">
+    <h1 class="page-title">📚 Book Library</h1>
+    <p class="page-subtitle">Discover your next favorite book</p>
+</div>
+
+<!-- Search Books -->
+<div class="search-container">
+    <form method="get" action="{% url 'book_list' %}" class="search-form">
+        <input type="text" name="q" placeholder="Search books by title or ISBN..." value="{{ request.GET.q }}" class="search-input">
+        <button type="submit" class="search-button">🔍 Search</button>
+    </form>
+</div>
+
+{% if books %}
+<div class="book-grid">
+    {% for book in books %}
+    <div class="book-card">
+        {% if book.cover_image %}
+            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="book-cover">
+        {% else %}
+            <img src="{% static 'images/default_book.png' %}" alt="{{ book.title }}" class="book-cover">
+        {% endif %}
+        <div class="book-info">
+            <h3 class="book-title">
+                <a href="{% url 'book_detail' book.pk %}">{{ book.title }}</a>
+            </h3>
+            <p class="book-description">{{ book.description|truncatewords:20 }}</p>
+            <div class="book-meta">
+                <span class="book-isbn">ISBN: {{ book.isbn }}</span>
+                <a href="{% url 'book_detail' book.pk %}" class="book-link">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<nav class="pagination-container">
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="page-link">← Previous</a>
+        {% else %}
+            <span class="page-link disabled">← Previous</span>
+        {% endif %}
+        
+        <span class="page-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="page-link">Next →</a>
+        {% else %}
+            <span class="page-link disabled">Next →</span>
+        {% endif %}
+    </div>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+    <div class="empty-state-icon">📚</div>
+    <h2 class="empty-state-title">No books are available.</h2>
+    <p class="empty-state-text">Check back later for new additions to our library.</p>
+</div>
+{% endif %}
 {% endblock content %}

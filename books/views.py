@@ -1,8 +1,11 @@
-from django.shortcuts import render
-
+from django.shortcuts import render, redirect
+from django.db.models import Q
 from django.views import View
 from django.views.generic import ListView, DetailView
-from books.models import Book
+from django.contrib import messages
+from django.core.paginator import Paginator
+from books.models import Book, BookReview
+from books.forms import BookReviewForm
 
 # Create your views here.
 
@@ -21,20 +24,66 @@ class BookListView(ListView):
     template_name = "books/list.html"
     model = Book
     context_object_name = "books"
+    paginate_by = 10
+    ordering = ['-id']
+    
+    def get_queryset(self):
+        queryset = Book.objects.all().order_by('-id')
+        search = self.request.GET.get('q')
+        
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) |
+                Q(description__icontains=search) |
+                Q(isbn__icontains=search)
+            )
+        
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('q', '')
+        return context
+    
 
 
-# class BookDetailView(View):
-#     def get(self, request, pk):
-#         book = Book.objects.get(pk=pk)
-#         context = {
-#             "book": book,
-#         }
-#         return render(request, "books/detail.html", context)
+class BookDetailView(View):
+    def get(self, request, pk):
+        book = Book.objects.get(pk=pk)
+        all_reviews = book.bookreview_set.all().order_by('-created_at')
+        
+        paginator = Paginator(all_reviews, 10)
+        page_number = request.GET.get('page', 1)
+        reviews = paginator.get_page(page_number)
+        
+        review_form = BookReviewForm()
+        context = {
+            "book": book,
+            "reviews": reviews,
+            "review_form": review_form,
+        }
+        return render(request, "books/detail.html", context)
+    
+class AddBookReviewView(View):
+    def post(self, request, pk):
+        book = Book.objects.get(pk=pk)
+        review_form = BookReviewForm(request.POST)
 
-class BookDetailView(DetailView):
-    template_name = "books/detail.html"
-    pk_url_kwarg = "pk"
-    model = Book
+        if review_form.is_valid():
+            book_review = review_form.save(commit=False)
+            book_review.user = request.user
+            book_review.book = book
+            book_review.save()
+            messages.success(request, "Your review has been added successfully.")
+        else:
+            messages.error(request, "There was an error with your review. Please try again.")
+
+        return redirect("book_detail", pk=pk)
+
+# class BookDetailView(DetailView):
+#     template_name = "books/detail.html"
+#     pk_url_kwarg = "pk"
+#     model = Book
 
     
     
