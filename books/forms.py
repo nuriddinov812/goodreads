@@ -11,5 +11,5 @@ class BookReviewForm(forms.ModelForm):
 class BookForm(forms.ModelForm):
     class Meta:
         model = Book
-        fields = ['title', 'description', 'isbn', 'cover_image']
+        fields = ['title', 'description', 'isbn',]
         

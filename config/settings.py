@@ -40,9 +40,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # packages
+    "rest_framework",
+    
+    
     # local apps
     "books",
     "users",
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -130,3 +135,8 @@ MEDIA_URL = "/media/"
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 2,
+}
